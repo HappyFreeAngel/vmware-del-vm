@@ -9,7 +9,8 @@ vcenter6.0 以上版本
 
 Role Variables
 --------------
-````  vmware_esxi:
+````  
+      vmware_esxi:
         vcenterhostname: "yourhostname"      #vcenter.yourdomain.com 如果域名没有解析,在执行机器上设置hosts也可以
         vcenterusername: "administrator@vsphere.local"
         vcenterpassword: "yourpassword"

@@ -1,0 +1,31 @@
+# 参数传入演示   2个参数
+#user_vcenterconfig=?,
+#user_host_list=?显示传入
+    - set_fact: vmware_del_vm_deploy_start_timestamp="{{lookup('pipe','date \"+%Y-%m-%d %H:%M:%S\"')}}"
+
+       #https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    - name: delete the VM from vcenter by hostname(virtual host name of vm)
+      vmware_guest:
+        hostname: "{{user_vcenterconfig['vcenterhostname']}}"
+        username: "{{user_vcenterconfig['vcenterusername']}}"
+        password: "{{user_vcenterconfig['vcenterpassword']}}"
+        validate_certs: False
+#        uuid: "{{item.uuid}}"
+        state: absent
+#        esxi_hostname: "{{item.host_machine}}"   #允许部署在不同的esxi 机器上.
+        datacenter: "{{user_vcenterconfig['datacenter']}}"
+#        resource_pool: "{{user_vcenterconfig['resource_pool']}}"
+        name: "{{item.name.split('.')[0]}}"
+        folder: "{{user_vcenterconfig['folder']}}"
+        force: yes
+
+      with_items: "{{user_host_list}}"   #"{{hostdict['rabbitmq-hosts']}}"
+      delegate_to: localhost
+      #async: 300
+      ignore_errors: yes
+      #当虚拟机本来就不存在的时候,忽略错误.
+
+    - set_fact: vmware_del_vm_deploy_finished_timestamp="{{lookup('pipe','date \"+%Y-%m-%d %H:%M:%S\"')}}"
+
+    - name: "kafka_deploy 开始时间: {{vmware_del_vm_deploy_start_timestamp}} 结束时间: {{vmware_del_vm_deploy_finished_timestamp}} 共耗时{{( (vmware_del_vm_deploy_finished_timestamp | to_datetime) - (vmware_del_vm_deploy_start_timestamp | to_datetime)).total_seconds()}}秒."
+      debug: msg=""
